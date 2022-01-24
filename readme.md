@@ -9,7 +9,7 @@ API Django Rest sécurisée (Python 3.8)
 * Create a new environment ``` $python -m venv MyEnv ```
 * Activate the env with ``` $MyEnv\Scripts\Activate ```
 * Install the required libraries in the env ``` $pip install -r \path\to\repository\requirements.txt ```
---
+
 # How to use ?
 * Run ``` $MyEnv\Scripts\Activate ``` to activate the venv
 * Go to the softdesk_api directory ``` $cd softdesk_api```
