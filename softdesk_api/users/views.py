@@ -7,6 +7,7 @@ from .serializers import UserSerializer
 from rest_framework.response import Response
 from rest_framework.exceptions import AuthenticationFailed
 from projets.validators import validate_input
+
 # Create your views here.
 
 

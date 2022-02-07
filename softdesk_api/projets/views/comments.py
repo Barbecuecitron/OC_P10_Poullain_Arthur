@@ -3,7 +3,7 @@ from users.models import User
 from users.utils import get_current_user, can_view_content
 from projets.models import Issues, Project, Comments
 from rest_framework.response import Response
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import PermissionDenied
 from ..serializers import CommentsSerializer
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -72,7 +72,7 @@ class CommentManagerView(APIView):
         comment_object = Comments.objects.get(id=url_comment_id)
 
         if comment_object.author_user_id.id != local_user.id:
-            return Response(
+            raise PermissionDenied(
                 "Seul l'auteur du projet ou de l'issue peuvent supprimer celle-ci"
             )
 

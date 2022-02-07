@@ -6,9 +6,9 @@ from users.utils import get_current_user
 from projets.models import Contributors, Project
 from projets.validators import validate_input
 from rest_framework.response import Response
-from rest_framework.exceptions import AuthenticationFailed
 from ..serializers import ContributorsSerializer, ProjectSerializer
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from rest_framework.exceptions import NotAcceptable, NotFound
 
 # Create your views here.
 
@@ -52,7 +52,7 @@ class ProjectView(APIView):
             try:
                 project_object = Project.objects.get(id=project_id)
             except ObjectDoesNotExist:
-                return Response(f"Aucun Projet n'existe à l'index {project_id}")
+                raise NotFound(f"Aucun Projet n'existe à l'index {project_id}")
             serializer = ProjectSerializer(project_object)
             return Response(serializer.data)
 
@@ -63,7 +63,7 @@ class ProjectView(APIView):
         try:
             project_object = Project.objects.get(id=project_id)
         except ObjectDoesNotExist:
-            return Response(f"Aucun Projet n'existe à l'index {project_id}")
+            raise NotFound(f"Aucun Projet n'existe à l'index {project_id}")
 
         rdata = request.data
 
@@ -83,10 +83,10 @@ class ProjectView(APIView):
         try:
             project_object = Project.objects.get(id=project_id)
         except ObjectDoesNotExist:
-            return Response(f"Aucun Projet n'existe à l'index {project_id}")
+            raise NotFound(f"Aucun Projet n'existe à l'index {project_id}")
 
         if project_object.author_user_id.id != local_user.id:
-            return Response("Vous n'êtes pas autorisé à effectuer cette action.")
+            raise PermissionDenied("Vous n'êtes pas autorisé à effectuer cette action.")
         project_object.delete()
         print(f"OBJECT AUTHOR USER ID {project_object.author_user_id.id}")
         print(f"CONNECTED_USER ID {local_user.id}")
@@ -103,14 +103,13 @@ class ProjectContentView(APIView):
         try:
             project_object = Project.objects.get(id=url_project_id)
         except ObjectDoesNotExist:
-            return Response(f"Aucun Projet n'existe à l'index {url_project_id}")
+            raise NotFound(f"Aucun Projet n'existe à l'index {url_project_id}")
 
         # Retrieve contributors' IDs
         contributors_objects = project_object.get_contributors()
         serialized_contributors = []
         for contributor in contributors_objects:
-            serialized_contributors.append(
-                ContributorsSerializer(contributor).data)
+            serialized_contributors.append(ContributorsSerializer(contributor).data)
         return Response(serialized_contributors)
 
     # Add contrib to project
@@ -121,18 +120,18 @@ class ProjectContentView(APIView):
         # Add a user through its id
         user_to_add_id = rdata["id"]
         if not rdata["id"].isnumeric():
-            return Response("Saisie invalide, l'id utilisateur doit être un INT")
+            raise NotAcceptable("Saisie invalide, l'id utilisateur doit être un INT")
         # Catch or abort -> passed in user
         try:
             user_to_add_obj = User.objects.get(id=user_to_add_id)
         except ObjectDoesNotExist:
-            return Response(f"Aucun utilisateur trouvé avec l'email {user_to_add_id}")
+            raise NotFound(f"Aucun utilisateur trouvé avec l'email {user_to_add_id}")
 
         # Catch or abort -> targeted Project
         try:
             project_object = Project.objects.get(id=url_project_id)
         except ObjectDoesNotExist:
-            return Response(f"Aucun Projet n'existe à l'index {url_project_id}")
+            raise NotFound(f"Aucun Projet n'existe à l'index {url_project_id}")
 
         # User already contributor of project | Abort or continue ?
         try:
@@ -162,17 +161,15 @@ class RemoveUserFromProjectView(APIView):
         try:
             project_object = Project.objects.get(id=url_project_id)
         except ObjectDoesNotExist:
-            return Response(f"Aucun Projet n'existe à l'index {url_project_id}")
+            raise NotFound(f"Aucun Projet n'existe à l'index {url_project_id}")
 
         try:
             user_to_delete = User.objects.get(id=user_to_delete_id)
         except ObjectDoesNotExist:
-            return Response(
-                f"Aucun utilisateur trouvé avec l'email {user_to_delete_id}"
-            )
+            raise NotFound(f"Aucun utilisateur trouvé avec l'email {user_to_delete_id}")
 
         if project_object.author_user_id.id != local_user.id:
-            return Response(
+            raise PermissionDenied(
                 "Seul l'auteur du projet peut en supprimer les contributaires"
             )
         # Does this contribution even exist ?
@@ -181,7 +178,7 @@ class RemoveUserFromProjectView(APIView):
                 project_id=url_project_id, user_id=user_to_delete_id
             )
         except ObjectDoesNotExist:
-            return Response(
+            raise NotAcceptable(
                 f"L'utilisateur {user_to_delete_id} ({user_to_delete.email}) n'est pas contributaire du {url_project_id}"
             )
 

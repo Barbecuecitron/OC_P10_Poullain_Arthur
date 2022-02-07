@@ -1,5 +1,5 @@
 # from curses.ascii import isalpha
-from django.core.exceptions import ValidationError
+from django.core.exceptions import BadRequest
 from .models import Project, Contributors, Issues, Comments
 
 # Check wether we have int or object-driven Foreign Key,
@@ -9,17 +9,15 @@ from .models import Project, Contributors, Issues, Comments
 def is_valid_fk(fk_entry):
     valid_instances = [Project, Contributors, Issues, Comments]
     if str(fk_entry).isnumeric() or fk_entry in valid_instances:
-        return True
-    raise ValidationError(
+        return
+    raise BadRequest(
         "Something went wrong, be sure to respect the documentation to assign valid fields")
 
 
 def is_string_safe(passed_string):
-    if passed_string is None or type(passed_string) != str:
-        raise ValidationError(
+    if passed_string is None or not isinstance(passed_string, str) or passed_string == "":
+        raise BadRequest(
             "Something went wrong, be sure to respect the documentation to assign valid fields")
-    else:
-        return True
 
 
 def validate_input(obj, type):
@@ -67,17 +65,17 @@ def validate_input(obj, type):
     # If input json keys have missing key compared to our custom_validators dicts
     for key in custom_validators[type].keys():
         if not key in obj.keys():
-            raise ValidationError(
+            raise BadRequest(
                 "Something went wrong, a field is probably missing")
 
     for input_fields, input_value in obj.items():
         print(input_fields, input_value)
         if input_value is None or input_fields is None:
-            raise ValidationError(
+            raise BadRequest(
                 "Something went wrong, be sure to respect the documentation to assign valid fields")
 
         try:
-            custom_validators[type][input_fields](input_value) == True
+            custom_validators[type][input_fields](input_value)
         except KeyError:
-            raise ValidationError(
+            raise BadRequest(
                 "Something went wrong, be sure to respect the documentation to assign valid fields")
