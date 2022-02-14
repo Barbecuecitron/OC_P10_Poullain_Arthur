@@ -28,7 +28,7 @@ class ProjectView(APIView):
             project_type=rdata["project_type"],
             author_user_id=local_user,
         )
-        # project.save()
+        project.save()
 
         serialized_project = ProjectSerializer(project)
         return Response(serialized_project.data)
