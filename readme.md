@@ -18,3 +18,6 @@ API Django Rest sécurisée (Python 3.8)
 * Follow the instructions of the POSTMAN documentation to register / sign in
 * Be sure to match the required fields and formats from the documentation before sending anything in PUT / POST requests or you might get errors.
 * The db will be located in the softdesk_api folder under the name of db.sqlite3
+
+# Documentation
+https://documenter.getpostman.com/view/19097363/UVeJJjqR
