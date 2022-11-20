@@ -18,9 +18,3 @@ API Django Rest sécurisée (Python 3.8)
 * Follow the instructions of the POSTMAN documentation to register / sign in
 * Be sure to match the required fields and formats from the documentation before sending anything in PUT / POST requests or you might get errors.
 * The db will be located in the softdesk_api folder under the name of db.sqlite3
-
-# Setup a PostgreSQL DB in order to run the project
-* Install [PostGreSQL](https://www.postgresql.org/)
-* Create a PostgreSQL DB using PGAdmin or PSQL
-* Link your DB to the app using the project/settings.py file
-* Run ``` python manage.py migrate ``` to populate you newly created DB from the included migrations files.
